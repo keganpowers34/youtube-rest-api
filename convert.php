@@ -1,4 +1,5 @@
 <?php
+$time_start = microtime(true);
 require_once __DIR__ . '/vendor/autoload.php';
 
 use YoutubeDl\YoutubeDl;
@@ -81,7 +82,9 @@ if(isset($_GET["youtubelink"]) && !empty($_GET["youtubelink"]))
 			$video = $dl->download($youtubelink);
 			$file = $url.$video->getFilename();
 		}
-		$json = json_encode(array([
+		$time_end = microtime(true);
+		$time = $time_end - $time_start;
+		$json = array([
 			"error" => false,
 			"youtube_id" => $video->getId(),
 			"title" => $video->getTitle(),
@@ -91,8 +94,9 @@ if(isset($_GET["youtubelink"]) && !empty($_GET["youtubelink"]))
 			"uploaded_at" => $video->getUploadDate(),
 			"thumbnails" => "https://img.youtube.com/vi/".$id."/0.jpg",	
 			"vtime" => sprintf( "%02d:%02d:%02d", $video['duration'] / 3600, $video['duration'] / 60 % 60, $video['duration'] % 60 ),
+			"time" => $time,
 			] 
-		));
+		);
 
 		if(LOG)
 		{
@@ -102,7 +106,7 @@ if(isset($_GET["youtubelink"]) && !empty($_GET["youtubelink"]))
 			fclose($file);
 		}
 
-		echo $json;
+		echo json_encode($json);
 	}
 	catch (Exception $e)
 	{
